@@ -1,6 +1,7 @@
 import express from "express";
 import Database from "better-sqlite3";
 import rateLimit from "express-rate-limit";
+import cors from "cors"
 
 const allowed = ["TV", "MOVIE", "ONA"];
 const db = new Database("db.sqlite");
@@ -16,6 +17,7 @@ const app = express();
 app.set('trust proxy', numberOfProxies);
 app.use(express.json());
 app.use(limiter);
+app.use(cors());
 
 app.use((err, _, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
