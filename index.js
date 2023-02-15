@@ -10,7 +10,10 @@ const limiter = rateLimit({
   message: "Too many requests, please try again later.",
 });
 
+const numberOfProxies = process.env.NUMBER_OF_PROXIES !== 'undefined' ? process.env.NUMBER_OF_PROXIES : 0;
+
 const app = express();
+app.set('trust proxy', numberOfProxies);
 app.use(express.json());
 app.use(limiter);
 
@@ -47,14 +50,14 @@ function isBad(body) {
   return false;
 }
 
-app.get("/entries", async (req, res) => {
+app.put("/entries", async (req, res) => {
   if (isBad(req.body)) return res.sendStatus(400);
 
   let query = `SELECT * FROM entries WHERE ${req.body.enabledFormats
     .map((format) => `format = '${format}'`)
     .join(" OR ")} AND id NOT IN (${req.body.alreadyGuessed.join(
-    ", "
-  )}) ORDER BY RANDOM() LIMIT 1`;
+      ", "
+    )}) ORDER BY RANDOM() LIMIT 1`;
 
   const result = db.prepare(query).get();
   return res.send(result);
