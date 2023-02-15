@@ -62,6 +62,10 @@ app.put("/entries", async (req, res) => {
     )}) ORDER BY RANDOM() LIMIT 1`;
 
   const result = db.prepare(query).get();
+  
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "PUT");
   return res.send(result);
 });
 
