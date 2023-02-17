@@ -1,7 +1,7 @@
 import express from "express";
 import Database from "better-sqlite3";
 import rateLimit from "express-rate-limit";
-import cors from "cors"
+import cors from "cors";
 
 const allowed = ["TV", "MOVIE", "ONA"];
 const db = new Database("db.sqlite");
@@ -11,10 +11,13 @@ const limiter = rateLimit({
   message: "Too many requests, please try again later.",
 });
 
-const numberOfProxies = process.env.NUMBER_OF_PROXIES !== 'undefined' ? process.env.NUMBER_OF_PROXIES : 0;
+const numberOfProxies =
+  process.env.NUMBER_OF_PROXIES !== "undefined"
+    ? process.env.NUMBER_OF_PROXIES
+    : 0;
 
 const app = express();
-app.set('trust proxy', numberOfProxies);
+app.set("trust proxy", numberOfProxies);
 app.use(express.json());
 app.use(limiter);
 app.use(cors());
@@ -50,7 +53,8 @@ function isBad(body) {
   if (body.enabledFormats.some((format) => !allowed.includes(format)))
     return true;
 
-  if(body.enabledFormats.length == 0) return true;
+  // enabledFormats empty
+  if (body.enabledFormats.length == 0) return true;
 
   return false;
 }
@@ -61,13 +65,15 @@ app.put("/entries", async (req, res) => {
 
   let query = `SELECT * FROM entries WHERE (${req.body.enabledFormats
     .map((format) => `format = '${format}'`)
-    .join(" OR ")}) AND id NOT IN (${req.body.alreadyGuessed.join(
-      ", "
-    )}) ${req.body.userEntries.length == 0 ? '' : `AND id IN (${req.body.userEntries.join(", ")}) `}ORDER BY RANDOM() LIMIT 1`;
+    .join(" OR ")}) AND id NOT IN (${req.body.alreadyGuessed.join(", ")}) ${
+    req.body.userEntries.length == 0
+      ? ""
+      : `AND id IN (${req.body.userEntries.join(", ")}) `
+  }ORDER BY RANDOM() LIMIT 1`;
 
-    console.log(query);
+  console.log(query);
   const result = db.prepare(query).get();
-  
+
   return res.send(result);
 });
 
