@@ -33,7 +33,8 @@ function isBad(body) {
   // missing keys
   if (
     !body.hasOwnProperty("alreadyGuessed") ||
-    !body.hasOwnProperty("enabledFormats")
+    !body.hasOwnProperty("enabledFormats") ||
+    !body.hasOwnProperty("userEntries")
   )
     return true;
 
@@ -49,22 +50,30 @@ function isBad(body) {
   if (body.enabledFormats.some((format) => !allowed.includes(format)))
     return true;
 
+  if(body.enabledFormats.length == 0) return true;
+
   return false;
 }
 
 app.put("/entries", async (req, res) => {
+  console.log(req.body);
   if (isBad(req.body)) return res.sendStatus(400);
 
-  let query = `SELECT * FROM entries WHERE ${req.body.enabledFormats
+  let query = `SELECT * FROM entries WHERE (${req.body.enabledFormats
     .map((format) => `format = '${format}'`)
-    .join(" OR ")} AND id NOT IN (${req.body.alreadyGuessed.join(
+    .join(" OR ")}) AND id NOT IN (${req.body.alreadyGuessed.join(
       ", "
-    )}) ORDER BY RANDOM() LIMIT 1`;
+    )}) ${req.body.userEntries.length == 0 ? '' : `AND id IN (${req.body.userEntries.join(", ")}) `}ORDER BY RANDOM() LIMIT 1`;
 
+    console.log(query);
   const result = db.prepare(query).get();
   
   return res.send(result);
 });
+
+app.get("/autocomplete", async (req, res) => {
+  const query = `SELECT title_e, title_e, title_r FROM entries`;
+  const result = db.prepare(query).all();
 
   return res.send(result);
 });
