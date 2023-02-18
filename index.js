@@ -60,7 +60,6 @@ function isBad(body) {
 }
 
 app.put("/entries", async (req, res) => {
-  console.log(req.body);
   if (isBad(req.body)) return res.sendStatus(400);
 
   let query = `SELECT * FROM entries WHERE (${req.body.enabledFormats
@@ -71,9 +70,11 @@ app.put("/entries", async (req, res) => {
       : `AND id IN (${req.body.userEntries.join(", ")}) `
   }ORDER BY RANDOM() LIMIT 1`;
 
-  console.log(query);
   const result = db.prepare(query).get();
 
+  if(!result) {
+    return res.sendStatus(418);
+  }
   return res.send(result);
 });
 
