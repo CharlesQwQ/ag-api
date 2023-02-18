@@ -53,7 +53,7 @@ function isBad(body) {
   if (body.enabledFormats.some((format) => !allowed.includes(format)))
     return true;
 
-  // enabledFormats empty
+  // enabledFormats missing
   if (body.enabledFormats.length == 0) return true;
 
   return false;
@@ -72,9 +72,8 @@ app.put("/entries", async (req, res) => {
 
   const result = db.prepare(query).get();
 
-  if(!result) {
-    return res.sendStatus(204);
-  }
+  if (!result) return res.sendStatus(204);
+
   return res.send(result);
 });
 
