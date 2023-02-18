@@ -73,7 +73,7 @@ app.put("/entries", async (req, res) => {
   const result = db.prepare(query).get();
 
   if(!result) {
-    return res.sendStatus(418);
+    return res.sendStatus(204);
   }
   return res.send(result);
 });
