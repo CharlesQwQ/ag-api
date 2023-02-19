@@ -1,15 +1,9 @@
 import express from "express";
 import Database from "better-sqlite3";
-import rateLimit from "express-rate-limit";
 import cors from "cors";
 
 const allowed = ["TV", "MOVIE", "ONA"];
 const db = new Database("db.sqlite");
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 15,
-  message: "Too many requests, please try again later.",
-});
 
 const numberOfProxies =
   process.env.NUMBER_OF_PROXIES !== "undefined"
@@ -19,7 +13,6 @@ const numberOfProxies =
 const app = express();
 app.set("trust proxy", numberOfProxies);
 app.use(express.json());
-app.use(limiter);
 app.use(cors());
 
 app.use((err, _, res, next) => {
@@ -71,6 +64,7 @@ app.put("/entries", async (req, res) => {
   }ORDER BY RANDOM() LIMIT 1`;
 
   const result = db.prepare(query).get();
+  console.log(req.headers["x-forwarded-for"] || req.socket.remoteAddress);
 
   if (!result) return res.sendStatus(204);
 
