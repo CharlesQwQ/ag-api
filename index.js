@@ -1,6 +1,7 @@
 import express from "express";
 import Database from "better-sqlite3";
 import cors from "cors";
+import seedrandom from "seedrandom";
 
 const allowed = ["TV", "MOVIE", "ONA"];
 const db = new Database("db.sqlite");
@@ -71,10 +72,20 @@ app.put("/entries", async (req, res) => {
   return res.send(result);
 });
 
-app.get("/autocomplete", async (req, res) => {
-  const query = `SELECT title_e, title_e, title_r FROM entries`;
+app.get("/autocomplete", async (_, res) => {
+  const query = `SELECT title_e, title_r FROM entries`;
   const result = db.prepare(query).all();
 
+  return res.send(result);
+});
+
+app.get("/daily", async (_, res) => {
+  const rng = seedrandom(new Date().toDateString());
+  const number = Math.floor(rng.quick() * 1075);
+
+  const query = `SELECT * FROM entries LIMIT 1 OFFSET ${number}; `;
+  const result = db.prepare(query).get();
+  
   return res.send(result);
 });
 
