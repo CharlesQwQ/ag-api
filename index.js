@@ -89,6 +89,10 @@ app.get("/daily", async (_, res) => {
   return res.send(result);
 });
 
+app.get("/timeuntil", async (_, res) => {
+  return res.send({ timeUntil: (new Date().setHours(24,0,0,0)) });
+});
+
 app.listen(3000, () => {
   console.log("Server is up on port 3000");
 });
