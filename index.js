@@ -68,15 +68,8 @@ app.put("/entries", async (req, res) => {
   console.log(req.headers["x-forwarded-for"] || req.socket.remoteAddress);
 
   if (!result) return res.sendStatus(204);
-
-  return res.send(result);
-});
-
-app.get("/autocomplete", async (_, res) => {
-  const query = `SELECT title_e, title_r FROM entries`;
-  const result = db.prepare(query).all();
-
-  return res.send(result);
+  
+  return res.send({encoded: Buffer.from(JSON.stringify(result)).toString('base64')});
 });
 
 app.get("/daily", async (_, res) => {
@@ -86,6 +79,13 @@ app.get("/daily", async (_, res) => {
   const query = `SELECT * FROM entries LIMIT 1 OFFSET ${number}; `;
   const result = db.prepare(query).get();
   
+  return res.send({encoded: Buffer.from(JSON.stringify(result)).toString('base64')});
+});
+
+app.get("/autocomplete", async (_, res) => {
+  const query = `SELECT title_e, title_r FROM entries`;
+  const result = db.prepare(query).all();
+
   return res.send(result);
 });
 
