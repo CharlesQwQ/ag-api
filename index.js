@@ -69,7 +69,7 @@ app.put("/entries", async (req, res) => {
 
   if (!result) return res.sendStatus(204);
   
-  return res.send({encoded: Buffer.from(JSON.stringify(result)).toString('base64')});
+  return res.send({encoded: Buffer.from(encodeURI(JSON.stringify(result))).toString('base64')});
 });
 
 app.get("/daily", async (_, res) => {
@@ -79,7 +79,7 @@ app.get("/daily", async (_, res) => {
   const query = `SELECT * FROM entries LIMIT 1 OFFSET ${number}; `;
   const result = db.prepare(query).get();
   
-  return res.send({encoded: Buffer.from(JSON.stringify(result)).toString('base64')});
+  return res.send({encoded: Buffer.from(encodeURI(JSON.stringify(result))).toString('base64')});
 });
 
 app.get("/autocomplete", async (_, res) => {
